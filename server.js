@@ -1,4 +1,16 @@
 #!/bin/env node
+//  OpenShift sample Node application
+var express = require('express');
+var fs      = require('fs');
+
+
+/**
+ *  Define the sample application.
+ */
+var SampleApp = function() {
+
+    //  Scope.
+    var self = this;
 // socket.io initialization on the server side
 self.initializeSocketIO = function() {
         self.server = require('http').createServer(self.app);
@@ -35,3 +47,13 @@ self.initialize = function() {
     self.initializeServer();
     self.initializeSocketIO().addSocketIOEvents();
 };
+};   /*  Sample Application.  */
+
+
+
+/**
+ *  main():  Main code.
+ */
+var zapp = new SampleApp();
+zapp.initialize();
+zapp.start();
