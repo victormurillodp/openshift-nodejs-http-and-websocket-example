@@ -1,59 +1,15 @@
-#!/bin/env node
-//  OpenShift sample Node application
-var express = require('express','socket.io');
-var fs      = require('fs');
+var ipaddress = process.env.OPENSHIFT_NODEJS_IP || "127.0.0.1";
+var port      = process.env.OPENSHIFT_NODEJS_PORT || 8000;
 
+var WebSocketServer = require('ws').Server
+  , wss = new WebSocketServer({host : ipaddress, port: port});
 
-/**
- *  Define the sample application.
- */
-var SampleApp = function() {
+wss.on('connection', function(ws) {
+  console.log("New connection");
+  ws.on('message', function(message) {
+    ws.send("Received: " + message);
+  });
+  ws.send('Welcome!');
+});
 
-    //  Scope.
-    var self = this;
-// socket.io initialization on the server side
-self.initializeSocketIO = function() {
-        self.server = require('http').createServer(self.app);
-        self.io = require('socket.io').listen(self.server);
-        self.io.enable('browser client minification');  // send minified client
-        self.io.enable('browser client etag');          // apply etag caching logic based on version number
-        self.io.enable('browser client gzip');          // gzip the file
-        self.io.set('log level', 1);                    // reduce logging
-
-        self.io.set('transports', [
-                'websocket'
-            ]);
-        return this;
-    }
-
-    self.addSocketIOEvents = function() {
-        self.io.sockets.on('connection', function (socket) {
-          socket.emit('news', { hello: 'world' });
-          socket.on('my other event', function (data) {
-            console.log(data);
-      });
-    });
-}
-
-/**
- *  Initializes the sample application.
- */
-self.initialize = function() {
-    self.setupVariables();
-    self.populateCache();
-    self.setupTerminationHandlers();
-
-    // Create the express server and routes.
-    self.initializeServer();
-    self.initializeSocketIO().addSocketIOEvents();
-};
-};   /*  Sample Application.  */
-
-
-
-/**
- *  main():  Main code.
- */
-var zapp = new SampleApp();
-zapp.initialize();
-zapp.start();
+console.log("Listening to " + ipaddress + ":" + port + "...");
